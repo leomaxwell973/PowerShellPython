@@ -59,9 +59,11 @@ A **scripted auto-fix** is included in PowerShellPython but is **commented out b
 This code is **inserted inside** `subprocess.py` after `def run` but before the rest of `subprocess.run`.
 
 ```python
-def run(*popenargs, input=None, capture_output=False, timeout=None, check=False, **kwargs):
+def run(*popenargs,
+        input=None, capture_output=False, timeout=None, check=False, **kwargs):
     """
     Run command with arguments and return a CompletedProcess instance.
+    (Docstring omitted for brevity)
     
     PowerShellPython - Intercept and modify command arguments
     """
@@ -71,49 +73,92 @@ def run(*popenargs, input=None, capture_output=False, timeout=None, check=False,
     # Ensure MSVC environment is initialized only if DISTUTILS_USE_SDK is NOT set
     if os.environ.get("DISTUTILS_USE_SDK") != "1":
         try:
-            vcvarsall_path = r"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Auxiliary\\Build\\vcvarsall.bat"
+            vcvarsall_path = r"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat"
             print(f"Running MSVC initialization: {vcvarsall_path} x64")
+
+            # Run vcvarsall.bat and capture the output environment variables
             with os.popen(f'cmd.exe /c "set DISTUTILS_USE_SDK=1 && call \"{vcvarsall_path}\" x64 && set"') as pipe:
                 output = pipe.read()
+
+            # Parse the environment variables and set them in Python
             for line in output.splitlines():
                 if '=' in line:
                     key, value = line.split('=', 1)
                     os.environ[key] = value.strip()
+
+            # Confirm the variable was set
             if os.environ.get("DISTUTILS_USE_SDK") == "1":
                 print("MSVC environment successfully initialized.")
             else:
                 raise RuntimeError("MSVC initialization failed: DISTUTILS_USE_SDK not set.")
-        except Exception as e:
-            print(f"ERROR: Failed to initialize MSVC environment. Compilation may fail! ({e})")
-    
+
+        except Exception:
+            vcvarsall_path = r"C:\Program Files (x86)\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat"
+            print(f"Primary MSVC initialization failed. Trying alternative: {vcvarsall_path} x64")
+
+            try:
+                with os.popen(f'cmd.exe /c "set DISTUTILS_USE_SDK=1 && call \"{vcvarsall_path}\" x64 && set"') as pipe:
+                    output = pipe.read()
+
+                # Apply environment variables
+                for line in output.splitlines():
+                    if '=' in line:
+                        key, value = line.split('=', 1)
+                        os.environ[key] = value.strip()
+
+                if os.environ.get("DISTUTILS_USE_SDK") == "1":
+                    print("MSVC environment successfully initialized.")
+                else:
+                    raise RuntimeError("MSVC initialization failed: DISTUTILS_USE_SDK not set.")
+
+            except Exception as e:
+                print(f"ERROR: Failed to initialize MSVC environment. Compilation may fail! ({e})")
+
     if isinstance(popenargs[0], str):
         cmd_list = popenargs[0].replace("&&", "AND")
+        
     else:
         cmd_list = list(popenargs[0])
         cmd_list = [arg.replace("&&", "AND") for arg in cmd_list]
-    
-    if popenargs[0] == "ninja":
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        file_path = os.path.join(script_dir, "site-packages/setuptools/_distutils/command/build.py")
-        if os.path.exists(file_path):
-            with open(file_path, 'r') as f:
-                for line_num, line in enumerate(f, start=1):
-                    if " + plat_specifier" in line:
-                        print(f"WARNING: PowerShellPython found ' + plat_specifier' in setuptools/_distutils/command/build.py at line {line_num}.")
-                        print("This may cause some pip install-builds to fail on Windows! (I.E. Xformers)")
-    
+        if popenargs[0] == "ninja":
+            script_dir = os.path.dirname(os.path.abspath(__file__))  # Get the directory of the script
+            file_path = os.path.join(script_dir, "site-packages/setuptools/_distutils/command/build.py")
+            
+            if os.path.exists(file_path):
+                
+                with open(file_path, 'r') as f:
+                    for line_num, line in enumerate(f, start=1):
+                        if " + plat_specifier" in line:
+                            print(f"WARNING: PowerShellPython found ' + plat_specifier' in setuptools/_distutils/command/build.py at line {line_num}.")
+                            print(f"this may cause some pip install-builds to fail on windows! (I.E. Xformers)")
+                            
+               ## if okay to overwrite automatically, use below (workaround for automatic updates etc.)
+               ## and comment/remove the above warning block.
+               # with open(file_path, 'r') as f:
+               #     lines = f.readlines()
+               # with open(file_path, 'w') as f:
+               #     f.writelines(line.replace(" + plat_specifier", "") for line in lines)
+                    
+            else:
+                print(f"WARNING: PowerShellPython did not find setuptools!")
+
     if popenargs[0] in ["cmd", "cmd.exe"]:
         cmd_list[0] = cmd_list[0].replace("cmd", "powershell")
         cmd_list[1] = cmd_list[1].replace("/c", "-Command")
-    
     popenargs = (cmd_list,)
     
     try:
+        # Run `where powershell` safely without subprocess.run()
         with os.popen("where.exe powershell") as pipe:
-            powershell_path = pipe.read().strip().split("\n")[0].strip().replace("\\", "/")
+            powershell_path = pipe.read().strip()
+
+        # Extract the first valid path
+        powershell_path = powershell_path.split("\n")
+        powershell_path = powershell_path[0].strip()  # Return the first valid path
+        
     except Exception:
-        powershell_path = "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe"
-    
+        powershell_path = "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe"  
+        # If `where` fails, fall back to default path    
     if kwargs.get("shell") is True:
         kwargs["executable"] = powershell_path
     
