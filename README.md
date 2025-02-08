@@ -188,3 +188,5 @@ PowerShellPython aims to make **Windows AI development smoother** by replacing `
 
 This is a work-in-progress—feedback is welcome!
 
+If you'd like to show appreciation (donate) for this work:
+https://buymeacoffee.com/leomaxwell
