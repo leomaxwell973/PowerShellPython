@@ -5,13 +5,13 @@ A modified `subprocess.py` (`subprocess.run`) that prefixes code to replace core
 # Use / Goals:
 
 1. Bypass CMD issues causing build/install fails.
-   1. To fix CMD length issues with typicall cmd.exe builds and installs.
-   2. If you run into CMD line length exceeded (especailly with link.exe), this will likely fix it.
+   1. To fix CMD length issues with typical cmd.exe builds and installs.
+   2. If you run into CMD line length exceeded (especially with link.exe), this will likely fix it.
 2. Bring seamless pip ecosystem back to Windows.
    1. To fix some pip usage with certain large projects, mainly and tested are Xformers (with extensions) and flash-attn.
    2. If you have pip install issues with these, this may fix it, though pip issues vary.
 3. Make Windows more viable and functionality less dependent on Linux VM-ware or other invasive workarounds.
-   1. Via the above, and give An alternative shell for workarounds, troubleshoooting and debuging.
+   1. Via the above, and give An alternative shell for workarounds, troubleshooting and debugging.
 
 ## Features
 
