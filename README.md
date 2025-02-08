@@ -2,10 +2,16 @@
 
 A modified `subprocess.py` (`subprocess.run`) that prefixes code to replace core shell operations from `cmd.exe` with `PowerShell`, targeting commands like **ninja, cmake, cl/msvc, link, etc.** The goal is to **bypass cmd.exe issues** by using PowerShell for Python execution.
 
-This Project has 3 Goals:
+# Use / Goals:
+
 1. Bypass CMD issues causing build/install fails.
-2. Bring seamless pip ecosystem back to Windows.
-3. Make Windows more viable and functionality less dependent on Linux VM-ware or other invasive workarounds.
+   i. To fix CMD length issues with typicall cmd.exe builds and installs.
+      If you run into CMD line length exceeded (especailly with link.exe), this will likely fix it.
+3. Bring seamless pip ecosystem back to Windows.
+   i. To fix some pip usage with certain large projects, mainly and tested are Xformers (with extensions) and flash-attn.
+      If you have pip install issues with these, this may fix it, though pip issues vary.
+4. Make Windows more viable and functionality less dependent on Linux VM-ware or other invasive workarounds.
+   i. Via the above, and give An alternative shell for workarounds, troubleshoooting and debuging.
 
 ## Features
 
