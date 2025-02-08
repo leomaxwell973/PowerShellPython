@@ -180,6 +180,8 @@ def run(*popenargs,
 3. Apply the `build.py` patch if needed
 4. (Optional) Add `ver.ps1` to improve log handling
 
+**NOTE:** You do not actually need to run from powershell at all, you can run cmd like normal, python will just be calling powershell itself from the backend.
+
 ---
 
 ### **Conclusion**
