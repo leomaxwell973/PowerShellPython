@@ -15,7 +15,7 @@ This Project has 3 Goals:
 - **Fixes vcvarsall.bat Conflicts** – Uses a **custom call** to initialize MSVC without interference from PowerShell prefixing.
 - **Supports Different PowerShell Versions** – While tested on **PowerShell v1.0**, it should work with other versions based on pathing/env priority.
 - **Validated on Both Native & VM Environments** – Tested with **Python 3.10.6, CUDA 12.1, PyTorch 2.5.1+cu121, Xformers v0.0.29.post1, and Flash-Attn v2.7.4.post1**.
-- \*\*Works with Plain \*\***`pip install`** – No need for manual builds or Git repo installations.
+- \*\*Works with Plain \*\* **`pip install`** – No need for manual builds or Git repo installations.
 
 ## Recommended Fixes & Enhancements
 
