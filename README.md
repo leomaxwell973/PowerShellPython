@@ -198,3 +198,7 @@ This is a work-in-progress—feedback is welcome!
 
 If you'd like to show appreciation (donate) for this work:
 https://buymeacoffee.com/leomaxwell
+
+### **Troubleshooting**
+
+Check the wiki tab for a page on general troubleshooting ideas should any issues occur.
